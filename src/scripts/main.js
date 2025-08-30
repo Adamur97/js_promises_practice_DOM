@@ -1,40 +1,45 @@
 // src/scripts/main.js
 
-// Deklaracja zmiennych globalnych do obietnic
 let firstPromise;
+let resolveFirst;
 let secondPromise;
+let resolveSecond;
 let thirdPromise;
+let resolveThird;
 
-// Funkcja inicjalizująca obietnice po załadowaniu DOM
 window.addEventListener('DOMContentLoaded', () => {
-
-  // Pierwsza obietnica
   firstPromise = new Promise((resolve) => {
-    const triggerFirst = document.querySelector('#firstButton');
-    triggerFirst.addEventListener('click', () => {
-      resolve('firstPromise resolved');
-    });
+    resolveFirst = resolve;
+    window.resolveFirst = resolveFirst; // teraz ESLint nie będzie narzekać
   });
 
-  // Druga obietnica
   secondPromise = new Promise((resolve) => {
-    const triggerSecond = document.querySelector('#secondButton');
-    triggerSecond.addEventListener('click', () => {
-      resolve('secondPromise resolved');
-    });
+    resolveSecond = resolve;
+    window.resolveSecond = resolveSecond;
   });
 
-  // Trzecia obietnica
   thirdPromise = new Promise((resolve) => {
-    const triggerThird = document.querySelector('#thirdButton');
-    triggerThird.addEventListener('click', () => {
-      resolve('thirdPromise resolved');
-    });
+    resolveThird = resolve;
+    window.resolveThird = resolveThird;
   });
 
-});
+  window.firstPromise = firstPromise;
+  window.secondPromise = secondPromise;
+  window.thirdPromise = thirdPromise;
 
-// Funkcja, którą testy mogą wywołać, aby pobrać promisy
-export function getPromises() {
-  return { firstPromise, secondPromise, thirdPromise };
-}
+  const leftButton = document.querySelector('#left-button');
+  const rightButton = document.querySelector('#right-button');
+
+  if (leftButton) {
+    leftButton.addEventListener('click', () => {
+      resolveSecond();
+      resolveThird();
+    });
+  }
+
+  if (rightButton) {
+    rightButton.addEventListener('click', () => {
+      resolveThird();
+    });
+  }
+});
