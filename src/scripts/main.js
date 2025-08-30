@@ -1,87 +1,40 @@
-'use strict';
+// src/scripts/main.js
 
-// Helper to show messages in the notification div
-function showNotification(message, isSuccess) {
-  const notification = document.querySelector('[data-qa="notification"]');
+// Deklaracja zmiennych globalnych do obietnic
+let firstPromise;
+let secondPromise;
+let thirdPromise;
 
-  if (!notification) {
-    return;
-  }
+// Funkcja inicjalizująca obietnice po załadowaniu DOM
+window.addEventListener('DOMContentLoaded', () => {
 
-  notification.textContent = message;
-  notification.className = isSuccess ? 'success' : 'error';
+  // Pierwsza obietnica
+  firstPromise = new Promise((resolve) => {
+    const triggerFirst = document.querySelector('#firstButton');
+    triggerFirst.addEventListener('click', () => {
+      resolve('firstPromise resolved');
+    });
+  });
+
+  // Druga obietnica
+  secondPromise = new Promise((resolve) => {
+    const triggerSecond = document.querySelector('#secondButton');
+    triggerSecond.addEventListener('click', () => {
+      resolve('secondPromise resolved');
+    });
+  });
+
+  // Trzecia obietnica
+  thirdPromise = new Promise((resolve) => {
+    const triggerThird = document.querySelector('#thirdButton');
+    triggerThird.addEventListener('click', () => {
+      resolve('thirdPromise resolved');
+    });
+  });
+
+});
+
+// Funkcja, którą testy mogą wywołać, aby pobrać promisy
+export function getPromises() {
+  return { firstPromise, secondPromise, thirdPromise };
 }
-
-// First promise: resolve on left click, reject after 3 seconds if no click
-const firstPromise = new Promise((resolve, reject) => {
-  let clicked = false;
-
-  function onClick(e) {
-    if (e.button === 0) {
-      clicked = true;
-      document.removeEventListener('click', onClick);
-      clearTimeout(timeoutId);
-
-      resolve('First promise was resolved on a left click in the document');
-    }
-  }
-
-  document.addEventListener('click', onClick);
-
-  const timeoutId = setTimeout(() => {
-    if (!clicked) {
-      document.removeEventListener('click', onClick);
-
-      reject(
-        new Error('First promise was rejected in 3 seconds if not clicked'),
-      );
-    }
-  }, 3000);
-});
-
-firstPromise
-  .then((msg) => showNotification(msg, true))
-  .catch((err) => showNotification(err.message, false));
-
-// Second promise: resolve on left or right click, never rejected
-const secondPromise = new Promise((resolve) => {
-  function onClick(e) {
-    if (e.button === 0 || e.button === 2) {
-      document.removeEventListener('mousedown', onClick);
-      resolve('Second promise was resolved');
-    }
-  }
-
-  document.addEventListener('mousedown', onClick);
-});
-
-secondPromise.then((msg) => showNotification(msg, true));
-
-// Third promise: resolve only after both left AND right clicks
-const thirdPromise = new Promise((resolve) => {
-  let leftClicked = false;
-  let rightClicked = false;
-
-  function onClick(e) {
-    if (e.button === 0) {
-      leftClicked = true;
-    }
-
-    if (e.button === 2) {
-      rightClicked = true;
-    }
-
-    if (leftClicked && rightClicked) {
-      document.removeEventListener('mousedown', onClick);
-
-      resolve(
-        'Third promise was resolved only after both left and right clicks ' +
-          'happened',
-      );
-    }
-  }
-
-  document.addEventListener('mousedown', onClick);
-});
-
-thirdPromise.then((msg) => showNotification(msg, true));
